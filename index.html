@@ -1,361 +1,434 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>小学4年生 理科クイズ</title>
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;
- background:#edf5f1;
- font-family:system-ui,sans-serif;
- color:#193d35;
+  margin:0;
+  background:#eef7f4;
+  color:#173d37;
+  font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;
 }
-main{
- max-width:650px;
- margin:auto;
- padding:24px 18px 50px;
-}
-h1{font-size:27px;text-align:center}
-h2{font-size:23px}
+main{max-width:680px;margin:auto;padding:24px 16px 60px}
+h1{font-size:29px;line-height:1.4}
+h2{font-size:22px;line-height:1.5}
 p{line-height:1.7}
 .card{
- background:white;
- border-radius:22px;
- padding:25px 20px;
- margin-top:20px;
- box-shadow:0 5px 20px #0000000b;
+  background:white;
+  border-radius:22px;
+  padding:22px 18px;
+  margin:16px 0;
+  box-shadow:0 4px 15px #00000009;
 }
+.muted{color:#698078}
 button{
- width:100%;
- padding:18px;
- margin:9px 0;
- border-radius:15px;
- border:2px solid #d7e5df;
- background:white;
- color:#193d35;
- font-size:17px;
- font-weight:bold;
- text-align:left;
- cursor:pointer;
+  font:inherit;
+  cursor:pointer;
 }
-button:disabled{cursor:default}
-.primary{
- background:#148b73;
- color:white;
- text-align:center;
- border:0;
+.btn{
+  width:100%;
+  padding:17px;
+  border:0;
+  border-radius:14px;
+  background:#0f8b79;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  margin-top:10px;
 }
-.correct{
- background:#dff7e9;
- border-color:#15966d;
+.secondary{background:#e3f0ec;color:#15594f}
+.btn:disabled{opacity:.45}
+.answer{
+  display:block;
+  width:100%;
+  text-align:left;
+  padding:16px;
+  margin:10px 0;
+  border:2px solid #d8e7e2;
+  border-radius:14px;
+  background:white;
+  font-size:17px;
+  line-height:1.5;
+  color:#173d37;
 }
-.wrong{
- background:#ffe5e5;
- border-color:#e35b5b;
-}
-.small{color:#607b73;font-size:14px}
-.progress{
- height:9px;
- background:#e4ece8;
- border-radius:10px;
- margin:20px 0;
- overflow:hidden;
-}
-.bar{
- height:100%;
- background:#15977b;
- transition:width .2s;
-}
+.correct{border-color:#0f8b79;background:#e4f8ef}
+.wrong{border-color:#d97070;background:#fff0ef}
 .feedback{
- background:#f0f7f4;
- padding:18px;
- border-radius:15px;
- margin-top:20px;
- line-height:1.8;
+  background:#f0f6f4;
+  border-radius:14px;
+  padding:16px;
+  margin:18px 0;
 }
-.hidden{display:none}
-.center{text-align:center}
+.progress{
+  height:10px;
+  background:#e6eeeb;
+  border-radius:8px;
+  overflow:hidden;
+  margin:20px 0;
+}
+.bar{height:100%;background:#0f8b79}
 .score{
- font-size:52px;
- color:#148b73;
- font-weight:bold;
+  font-size:55px;
+  font-weight:bold;
+  color:#0f8b79;
+  text-align:center;
+}
+.link{
+  border:0;
+  background:none;
+  color:#176a5c;
+  text-decoration:underline;
+  padding:10px 0;
 }
 </style>
 </head>
 <body>
-<main>
-<div id="home">
-<h1>🔬 小学4年生 理科クイズ</h1>
-<p class="center">勉強したい単元を選ぼう！</p>
-<div id="units"></div>
-</div>
-
-<div id="quiz" class="hidden">
-<button onclick="home()" style="width:auto;padding:10px 15px">← 単元選択</button>
-<div class="card">
-<div id="counter" class="small"></div>
-<div class="progress"><div id="bar" class="bar"></div></div>
-<h2 id="question"></h2>
-<div id="answers"></div>
-<div id="feedback" class="feedback hidden"></div>
-<button id="next" class="primary hidden" onclick="nextQuestion()">次の問題へ →</button>
-</div>
-</div>
-
-<div id="result" class="hidden">
-<div class="card center">
-<h2>結果発表！</h2>
-<div id="score" class="score"></div>
-<p id="message"></p>
-<button class="primary" onclick="restart()">もう一度挑戦</button>
-<button onclick="home()">単元選択に戻る</button>
-</div>
-</div>
-</main>
-
+<main id="app"></main>
 <script>
-const data=[
-{
- title:"雨水のゆくえ",
- icon:"🌧️",
- questions:[
+const UNITS = [
  {
- q:"雨が降ったあと、水がたまりやすい場所はどこ？",
- a:["高い場所","低い場所","日当たりのよい場所","風が強い場所"],
- c:1,
- e:"雨水は高いところから低いところへ流れるので、低い場所に集まりやすくなります。"
- },
- {
- q:"地面を流れる雨水は、どちらへ流れる？",
- a:["低いところから高いところ","高いところから低いところ","必ず北へ","必ず東へ"],
- c:1,
- e:"雨水は地面の傾きに沿って、高いところから低いところへ流れます。"
- },
- {
- q:"雨水が地面にしみこみやすいのは？",
- a:["コンクリート","アスファルト","砂の地面","金属の板"],
- c:2,
- e:"砂の粒の間にはすき間があり、水がしみこみやすくなっています。"
- },
- {
- q:"地面にしみこんだ水は、どうなることがある？",
- a:["地下へ進む","必ず空へ飛ぶ","石に変わる","光になる"],
- c:0,
- e:"地面にしみこんだ水は、土や砂のすき間を通って地下へ進むことがあります。"
- },
- {
- q:"水たまりの水が、晴れた日に少なくなる理由は？",
- a:["全部地面が吸い上げるから","水が水蒸気になって空気中へ出るから","水が石になるから","水が消滅するから"],
- c:1,
- e:"水は蒸発すると、目に見えない水蒸気になって空気中へ出ていきます。"
- }
-]
+  title:"雨水のゆくえ",
+  icon:"🌧️",
+  questions:[
+    ["雨がふった後、地面の水はおもにどちらへ流れますか。","低い場所","高い場所","高さに関係なく流れる","流れない","水は地面のかたむきにそって、高い場所から低い場所へ流れます。"],
+    ["地面が平らに見えても、水が流れるのはなぜですか。","小さなかたむきがあるから","風がふいているから","地面があたたかいから","水が軽いから","目で見て平らに見えても、高さに差があることがあります。"],
+    ["雨水が集まって水たまりができやすいのはどちらですか。","低い場所","高い場所","坂のいちばん上","高さに関係ない","水は低い場所へ集まります。"],
+    ["水の流れる方向を調べるため、地面に広げるうすいフィルムは何ですか。","ラップフィルム","アルミホイル","画用紙","新聞紙","ラップフィルムの上で水の流れる方向を観察します。"],
+    ["地面のかたむきを調べる道具は何ですか。","水平器","温度計","方位じしん","虫めがね","水平器などを使って地面のかたむきを調べられます。"],
+    ["水が流れやすい向きはどちらですか。","高い場所から低い場所","低い場所から高い場所","いつも北から南","いつも東から西","水は高い場所から低い場所へ流れます。"],
+    ["川の水は、山などから流れて最後はどこへ向かうことが多いですか。","海","山の頂上","空の上","地下の深いところだけ","雨水は川などに集まり、海へ流れていきます。"],
+    ["運動場の右側が高く、左側が低いとき、水はどちらへ流れますか。","左側。高い場所から低い場所へ流れるから","右側。高い場所へ流れるから","どちらにも流れない","必ず北へ流れる","地面の高さの差と水の流れる向きを結びつけます。"],
+    ["校庭の土とすな場のすなでは、一般にどちらのつぶが大きいですか。","すな場のすな","校庭の土","必ず同じ","どちらもつぶがない","教科書の実験では、すな場のすなの方がつぶが大きいことを確認しています。"],
+    ["土のつぶが大きいほど、水はどうしみこみますか。","速くしみこむ","おそくしみこむ","まったくしみこまない","必ず同じ速さになる","つぶが大きいほど水が速くしみこむ傾向があります。"],
+    ["土のつぶが小さいと、水のしみこむ速さはどうなりますか。","おそくなる","速くなる","必ずゼロになる","変わらない","教科書の比較実験の結果です。"],
+    ["校庭とすな場に同じ量の雨がふると、水たまりができやすいのはどちらですか。","校庭","すな場","必ず同じ","どちらにもできない","校庭の土の方が水がしみこみにくいためです。"],
+    ["土のつぶを集めて大きさを調べるとき、使ったテープは何ですか。","セロハンテープ","ガムテープ","両面テープ","ビニールテープ","つぶを集めて大きさを観察します。"],
+    ["2種類の土のしみこみ方を公平に比べるため、水の量はどうしますか。","同じ量にする","一方だけ多くする","一方には入れない","毎回変える","比べる条件のうち、土の種類以外はそろえます。"],
+    ["水のしみこみ方の実験で、同じ形の容器を使うのはなぜですか。","土の種類によるちがいを正しく比べるため","容器をきれいに見せるため","水の色を変えるため","土を重くするため","容器の形などが異なると、公平な比較ができません。"],
+    ["大きなつぶのすなと小さなつぶの土では、どちらが先に水を通しやすいですか。","大きなつぶのすな。水が速くしみこむから","小さなつぶの土。必ず速いから","どちらも水を通さない","必ず同じ速さになる","つぶの大きさと水のしみこむ速さの関係を説明します。"],
+    ["水が目に見えないすがたになって空気中に出ていくことを何といいますか。","じょう発","結ろ","こおる","とける","水は水じょう気になって空気中へ出ていきます。"],
+    ["水がじょう発して目に見えないすがたになったものは何ですか。","水じょう気","氷","雨つぶ","雪","水じょう気は目に見えません。"],
+    ["水を入れた容器にふたをしないで置くと、水の量はどうなりやすいですか。","へる","ふえる","必ず同じ","すぐに氷になる","水がじょう発して空気中へ出ていくためです。"],
+    ["水を入れた容器にふたをすると、水はどうなりますか。","ふたをしないときよりへりにくい","必ずすぐなくなる","ふたをしないときより速くへる","必ずふえる","ふたが水じょう気の外への移動をさまたげます。"],
+    ["ふたをした容器の内側につく水てきは、もとは何ですか。","水じょう気","砂","空気のほこり","氷のかけら","じょう発した水が再び水てきになります。"],
+    ["晴れた日に水たまりの水が空気中へ出ていくとき、何に変わりますか。","水じょう気","砂","石","雪","水たまりの水がじょう発しています。"],
+    ["水たまりの水はすべて地面にしみこんでなくなる、という説明は正しいですか。","正しくない。じょう発する水もあるから","正しい。必ずすべてしみこむ","正しい。水はじょう発しない","正しくない。水はすべて氷になるから","水がなくなる理由は、しみこみとじょう発の両方があります。"],
+    ["空気中の水じょう気はどこにありますか。","空気中のどこにでもある","教室にだけある","海の上にだけある","雨の日にだけある","冷たいものの外側に水てきがつく実験からわかります。"],
+    ["空気中の水じょう気が冷やされ、水になることを何といいますか。","結ろ","じょう発","燃焼","発芽","水じょう気が冷やされて水になります。"],
+    ["冷たいペットボトルの外側につく水てきはどこから来ましたか。","空気中の水じょう気","ペットボトルの中からしみ出した水","ペットボトルの材料","地面の土","ペットボトルの中の水が外へしみ出たものではありません。"],
+    ["氷を入れたコップの外側に水てきがつくのは、まわりの空気がどうなるからですか。","冷やされるから","あたためられるから","なくなるから","光るから","空気中の水じょう気が冷やされて水になります。"],
+    ["ほ冷ざいを入れたふくろの外側についたものは何ですか。","水てき","砂","塩","石","空気中の水じょう気が冷やされて水てきになりました。"],
+    ["「水じょう気は目に見える」は正しいですか。","×。水じょう気は目に見えない","○。いつも白く見える","○。いつも青く見える","○。いつも黒く見える","水じょう気は目に見えません。白い湯気などは小さな水てきです。"],
+    ["雨の後の水たまりがなくなる理由として正しいのはどれですか。","しみこむ水と、じょう発して水じょう気になる水がある","すべてが氷になる","すべてが地面にしみこむ","水が何も変化せず消える","水の一部は地面にしみこみ、別の一部はじょう発して水じょう気になり、空気中へ出ていきます。"]
+  ]
 },
 {
- title:"星の明るさや色",
- icon:"⭐",
- questions:[
- {
- q:"夜空の星の明るさは、どれも同じ？",
- a:["すべて同じ","星によって違う","色だけ違う","毎日すべて同じ明るさになる"],
- c:1,
- e:"星には明るい星も暗い星もあり、明るさに違いがあります。"
- },
- {
- q:"星の色について正しいのは？",
- a:["全部白い","全部赤い","白やオレンジなど違いがある","昼は青くなる"],
- c:2,
- e:"星には白っぽいものやオレンジ色っぽいものなどがあります。"
- },
- {
- q:"1等星と6等星では、どちらが明るい？",
- a:["1等星","6等星","同じ","比べられない"],
- c:0,
- e:"星は明るいものから順に1等星、2等星、3等星と分けられます。"
- },
- {
- q:"夏の大三角をつくる星はどれ？",
- a:["ベガ・デネブ・アルタイル","太陽・月・地球","ベガ・北極星・アンタレス","アンタレス・月・デネブ"],
- c:0,
- e:"夏の大三角は、ベガ、デネブ、アルタイルという3つの明るい星を結んだものです。"
- },
- {
- q:"夏の南の空で赤っぽく見える1等星は？",
- a:["ベガ","デネブ","アンタレス","アルタイル"],
- c:2,
- e:"さそり座のアンタレスは、赤っぽく見える1等星です。"
- }
-]
+  title:"星の明るさや色",
+  icon:"⭐",
+  questions:[
+    ["星には明るく見える星と暗く見える星がありますか。","○。ある","×。ない","昼だけある","夏だけある","星によって、見える明るさはちがいます。"],
+    ["星の明るさはどの星も同じですか。","ちがう","同じ","夜だけ同じ","色が同じなら必ず同じ","星には明るさのちがいがあります。"],
+    ["等星の数字が小さいほど、星はどう見えますか。","明るい","暗い","大きくなる","赤くなる","1等星は2等星より明るい星です。"],
+    ["1等星と3等星ではどちらが明るいですか。","1等星","3等星","同じ","数字だけでは絶対に比べられない","等星の数字が小さいほど明るく見えます。"],
+    ["夏の大三角をつくる3つの星は、教科書では何等星とされていますか。","1等星","2等星","3等星","5等星","ベガ・デネブ・アルタイルは夏の大三角をつくる明るい星です。"],
+    ["星の色の組み合わせとして、観察例にあるのはどれですか。","白色とオレンジ色","黒色と緑色","むらさき色と茶色","すべて無色","教科書の観察では白い星とオレンジ色の星が見つかっています。"],
+    ["星の色はすべて同じですか。","×。星によってちがう","○。すべて白い","○。すべて赤い","○。すべて青い","星によって色もちがいます。"],
+    ["教科書の観察例で、西の空に見えた星は何色でしたか。","オレンジ色","緑色","黒色","むらさき色","東の空の3つの星は白く、西の空の星はオレンジ色に見えました。"],
+    ["夏の東の夜空に見える3つの明るい星を結ぶと何の形になりますか。","三角形","四角形","円形","五角形","これを夏の大三角と呼びます。"],
+    ["夏の大三角をつくる3つの星の正しい組み合わせはどれですか。","ベガ・デネブ・アルタイル","ベガ・北極星・シリウス","太陽・月・北極星","デネブ・火星・金星","3つの星の名前と位置を覚えましょう。"],
+    ["こと座のベガは七夕のお話で何と呼ばれますか。","おりひめ星","ひこ星","北極星","流れ星","ベガがおりひめ星です。"],
+    ["わし座のアルタイルは七夕のお話で何と呼ばれますか。","ひこ星","おりひめ星","北極星","一番星","アルタイルがひこ星です。"],
+    ["星の明るさや色をくらべるには、いつ観察するとよいですか。","夜","昼","正午","朝の10時","晴れた夜空で星を観察します。"],
+    ["星を観察するとき、方角を調べる道具は何ですか。","方位じしん","温度計","はかり","虫めがね","方位じしんで東西南北を調べます。"],
+    ["夜に星を観察するとき、安全な行動はどれですか。","大人といっしょに観察する","一人で川辺に行く","暗い崖の近くへ行く","道路の真ん中で観察する","川・海・崖など危険な場所には行かないことも大切です。"]
+  ]
 },
 {
- title:"月と星の位置の変化",
- icon:"🌙",
- questions:[
- {
- q:"午後2時に南東の空に見えた半月は、時間がたつとどちらへ動く？",
- a:["東のほう","南のほう","北のほう","真下"],
- c:1,
- e:"半月は時間がたつと、東のほうから南のほうへ位置が変わります。"
- },
- {
- q:"月は時間がたつと、おおむねどちらへ動いて見える？",
- a:["東から西","西から東","北から南だけ","動かない"],
- c:0,
- e:"月は1日のうちでは、おおむね東から南の空を通って西へ動いて見えます。"
- },
- {
- q:"月の形について正しいのは？",
- a:["いつも満月","いつも半月","日によって変わる","毎日三日月"],
- c:2,
- e:"月は日によって見える形が変わり、約30日で元のような形に戻ります。"
- },
- {
- q:"同じ日の午後7時と午後9時で、星の位置は？",
- a:["変わらない","変わる","星が全部消える","色だけ変わる"],
- c:1,
- e:"星の位置は時間がたつと変わって見えます。"
- },
- {
- q:"時間がたつと、星座の星の並び方はどうなる？",
- a:["大きく変わる","逆さまに入れ替わる","ほとんど変わらない","星が増える"],
- c:2,
- e:"星座の位置は変わって見えますが、星どうしの並び方はほとんど変わりません。"
- },
- {
- q:"東の空の星は、時間がたつとどう見える？",
- a:["高いところへ動く","必ず低くなる","動かない","すべて消える"],
- c:0,
- e:"東の空の星は、時間がたつと高いところへ動いて見えます。"
- },
- {
- q:"南の空の星は、時間がたつとどう動いて見える？",
- a:["東から西へ","西から東へ","必ず真上へ","動かない"],
- c:0,
- e:"南の空の星は、時間がたつと西のほうへ位置が変わります。"
- },
- {
- q:"北の空の星は、何という星の近くを中心に回るように見える？",
- a:["ベガ","北極星","アンタレス","アルタイル"],
- c:1,
- e:"北の空の星は、北極星の近くを中心に回るように見えます。"
- }
-]
+  title:"月と星の位置の変化",
+  icon:"🌙",
+  questions:[
+    ["午後2時に南東の空で見えた半月は、時間がたつとおもにどちらへ動きますか。","南の方角","北の方角","東の方角","真下だけ","半月は東のほうから南のほうへ位置を変えます。"],
+    ["午後2時と午後3時の月を比べるとき、観察する場所はどうしますか。","変えない","毎回変える","できるだけ遠くへ移動する","場所は記録しなくてよい","同じ場所で観察すると位置の変化を比べやすいです。"],
+    ["月の位置を調べるとき、方角を調べる道具は何ですか。","方位じしん","温度計","ものさし","はかり","方位じしんで東・南・西などを調べます。"],
+    ["月の位置を記録するとき、方角のほかに調べるとよいことは何ですか。","高さ","気温だけ","風の強さだけ","地面の色だけ","方角、高さ、時刻などをそろえて記録します。"],
+    ["月の高さを調べるとき、腕をのばして使う体の部分は何ですか。","にぎりこぶし","ひざ","ひじ","足のうら","こぶしを重ねて月の高さの目安を調べます。"],
+    ["同じ日の月を1時間おきに観察すると、空の同じ位置に見え続けますか。","いいえ。位置は変わる","はい。まったく変わらない","必ず見えなくなる","毎回同じ高さになる","時間がたつと月の位置は変わります。"],
+    ["月の観察で建物などの目印を記録するのはなぜですか。","月の位置の変化を比べやすくするため","建物の色を調べるため","月を大きく見せるため","天気を変えるため","同じ目印を基準にすると変化がわかります。"],
+    ["月の観察で記録するとよい3つのことはどれですか。","時刻・方角・高さ","気温・湿度・風速だけ","音・におい・重さ","長さ・面積・体積","観察条件を記録して比較します。"],
+    ["月の形は毎日同じですか。","いいえ。日によって変わる","はい。いつも満月","はい。いつも半月","はい。いつも三日月","月は日によって見える形が変わります。"],
+    ["月の形はおよそ何日で元の形にもどりますか。","約30日","約2日","約7日","約365日","教科書では約30日かけて元の形にもどると説明しています。"],
+    ["まん丸に見える月を何といいますか。","満月","半月","三日月","新月","丸く見える月を満月といいます。"],
+    ["半分くらいが明るく見える月を何といいますか。","半月","満月","新月","太陽","半月も時間とともに位置が変わります。"],
+    ["満月は夕方から夜にかけて、どの順に位置が変わりますか。","東→南→西","西→南→東","北→東→北","南→北→南","東のほうから南を通り西のほうへ移ります。"],
+    ["午後7時に東に見えた満月は、午後8時には東より西側に動いていますか。","はい","いいえ","必ず真北に動く","必ず同じ位置にある","時間がたつと西のほうへ位置が変わります。"],
+    ["月の形が変わることと、同じ日の月の位置が変わることは同じ現象ですか。","いいえ。別の変化","はい。まったく同じ","月の位置は変わらない","月の形は変わらない","形の変化は日ごと、位置の変化は同じ日の時間経過でも観察できます。"],
+    ["星をいくつかのまとまりに分けて名前をつけたものは何ですか。","星ざ","流れ星","満月","惑星","星のまとまりに名前をつけたものです。"],
+    ["秋の夜空の観察で教科書に登場する星ざは何ですか。","はくちょうざ","オリオンざ","さそりざ","おおぐまざ","教科書でははくちょうざを観察します。"],
+    ["星の位置を調べるとき、方角を調べる道具は何ですか。","方位じしん","温度計","体重計","ストップウォッチ","月と同様に方角を確かめます。"],
+    ["星ざを観察すると、1時間ほどで星の位置は変わりますか。","変わる","変わらない","必ず消える","星の色だけが変わる","星も時間とともに見える位置が変わります。"],
+    ["西の空の星は、時間がたつと地平線に近づくように動きますか。","はい","いいえ","必ず真上に動く","すべて止まっている","西の空では星がしずむ方向へ動くように見えます。"],
+    ["東の空の星は、時間がたつと高いところへ動くように見えますか。","はい","いいえ","必ず地面にもぐる","まったく動かない","東の空では星がのぼるように見えます。"],
+    ["南の空の星は、時間がたつとおもにどちらへ動いて見えますか。","西の方角","東の方角","北の方角だけ","真下だけ","南の空では東から西へ動くように見えます。"],
+    ["北の空の星は、何という星を中心に回るように見えますか。","北極星","ベガ","アルタイル","デネブ","北極星を中心に回るように見えます。"],
+    ["時間がたつと、星の位置と星の並び方のうち、変わるのはどちらですか。","星の位置","星の並び方だけ","どちらも必ず大きく変わる","どちらも絶対に変わらない","並び方はほとんど変わりません。"],
+    ["時間がたつと、はくちょうざの星の並び方は変わりますか。","ほとんど変わらない","毎時間まったく別の形になる","必ず円形になる","星がすべて消える","星ざの形を保ったまま位置が変わります。"],
+    ["午後7時と午後9時のはくちょうざを比べると、星どうしの間かくはどうなりますか。","ほとんど変わらない","必ず2倍になる","必ず半分になる","星がすべて重なる","星の並び方は同じまま移動して見えます。"],
+    ["星を同じ場所から時間を変えて観察するのはなぜですか。","星の位置の変化を比べるため","星の色を変えるため","星を動かすため","空を明るくするため","観察地点をそろえると変化がわかりやすくなります。"],
+    ["午後8時と午後9時で星ざの位置が変わったとき、形はどうなっていますか。","ほとんど同じ形","必ず三角形になる","必ず四角形になる","すべての星がばらばらになる","位置は変わっても並び方は変わりません。"],
+    ["星ざ早見で星を探すとき、何と何を合わせますか。","月日と時こく","気温と湿度","身長と体重","風向きと風速","月日と時こくを合わせて使います。"],
+    ["星ざ早見で西の空を調べるとき、どの方角の文字を下にしますか。","西","東","南","北","見たい方角を下にして使います。"]
+  ]
 }
-];
+ ];
 
-let unit=0;
-let index=0;
-let points=0;
-let answered=false;
+const app = document.getElementById("app");
 
-function show(id){
- ["home","quiz","result"].forEach(x=>{
- document.getElementById(x).classList.toggle("hidden",x!==id);
- });
- window.scrollTo(0,0);
+let currentUnit = null;
+let quiz = [];
+let currentIndex = 0;
+let correctCount = 0;
+let mistakes = [];
+let answered = false;
+let isReview = false;
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
 }
 
-function home(){
- show("home");
+function shuffle(array) {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }
 
-function start(n){
- unit=n;
- index=0;
- points=0;
- render();
- show("quiz");
+function showHome() {
+  currentUnit = null;
+  app.innerHTML = `
+    <h1>🔬 小学4年生 理科クイズ</h1>
+    <p class="muted">
+      勉強したい単元を選ぼう！
+    </p>
+    ${UNITS.map((unit, index) => `
+      <div class="card">
+        <h2>${unit.icon} ${escapeHTML(unit.title)}</h2>
+        <p class="muted">
+          全${unit.questions.length}問
+        </p>
+        <button class="btn" onclick="startUnit(${index})">
+          この単元にチャレンジ
+        </button>
+      </div>
+    `).join("")}
+  `;
 }
 
-function render(){
- answered=false;
- const qs=data[unit].questions;
- const item=qs[index];
- document.getElementById("counter").textContent=
- data[unit].title+"　第"+(index+1)+"問 / "+qs.length+"問";
- document.getElementById("bar").style.width=
- ((index+1)/qs.length*100)+"%";
- document.getElementById("question").textContent=item.q;
- const area=document.getElementById("answers");
- area.innerHTML="";
- item.a.forEach((answer,i)=>{
- const b=document.createElement("button");
- b.textContent=String.fromCharCode(65+i)+"　"+answer;
- b.onclick=()=>select(i);
- area.appendChild(b);
- });
- document.getElementById("feedback").classList.add("hidden");
- document.getElementById("next").classList.add("hidden");
- document.getElementById("next").textContent=
- index===qs.length-1?"結果を見る →":"次の問題へ →";
+function startUnit(index) {
+  currentUnit = index;
+  isReview = false;
+  quiz = UNITS[index].questions.map((q, i) => ({
+    question: q[0],
+    correct: q[1],
+    choices: shuffle(q.slice(1, 5)),
+    explanation: q[5],
+    number: i + 1
+  }));
+
+  currentIndex = 0;
+  correctCount = 0;
+  mistakes = [];
+
+  showQuestion();
 }
 
-function select(choice){
- if(answered)return;
- answered=true;
- const item=data[unit].questions[index];
- const ok=choice===item.c;
- if(ok)points++;
- const buttons=document.querySelectorAll("#answers button");
- buttons.forEach((b,i)=>{
- b.disabled=true;
- if(i===item.c)b.classList.add("correct");
- else if(i===choice)b.classList.add("wrong");
- });
- const f=document.getElementById("feedback");
- f.innerHTML="";
- const heading=document.createElement("strong");
- heading.textContent=ok?"⭕ 正解！":"❌ ざんねん！";
- const explanation=document.createElement("p");
- explanation.textContent=item.e;
- f.append(heading,explanation);
- f.classList.remove("hidden");
- document.getElementById("next").classList.remove("hidden");
+function showQuestion() {
+  answered = false;
+
+  const unit = UNITS[currentUnit];
+  const item = quiz[currentIndex];
+  const progress = (currentIndex / quiz.length) * 100;
+
+  app.innerHTML = `
+    <button class="link" onclick="showHome()">
+      ← 単元選択にもどる
+    </button>
+
+    <p class="muted">
+      ${unit.icon} ${escapeHTML(unit.title)}
+      ${isReview ? "・まちがえた問題の復習" : ""}
+    </p>
+
+    <div class="progress">
+      <div class="bar" style="width:${progress}%"></div>
+    </div>
+
+    <p class="muted">
+      ${currentIndex + 1} / ${quiz.length} 問
+    </p>
+
+    <div class="card">
+      <h2>問題 ${item.number}</h2>
+      <p style="font-size:19px;font-weight:bold">
+        ${escapeHTML(item.question)}
+      </p>
+
+      <div id="choices">
+        ${item.choices.map((choice, index) => `
+          <button
+            class="answer"
+            onclick="chooseAnswer(${index})"
+          >
+            ${index + 1}. ${escapeHTML(choice)}
+          </button>
+        `).join("")}
+      </div>
+
+      <div id="result"></div>
+
+      <button
+        id="nextButton"
+        class="btn"
+        style="display:none"
+        onclick="nextQuestion()"
+      >
+        ${currentIndex === quiz.length - 1
+          ? "結果を見る"
+          : "次の問題へ →"}
+      </button>
+    </div>
+  `;
 }
 
-function nextQuestion(){
- index++;
- if(index>=data[unit].questions.length){
- finish();
- }else{
- render();
- window.scrollTo(0,0);
- }
+function chooseAnswer(index) {
+  if (answered) return;
+  answered = true;
+
+  const item = quiz[currentIndex];
+  const selected = item.choices[index];
+  const isCorrect = selected === item.correct;
+
+  if (isCorrect) {
+    correctCount++;
+  } else {
+    mistakes.push(item);
+  }
+
+  const buttons = document.querySelectorAll(".answer");
+
+  buttons.forEach((button, i) => {
+    button.disabled = true;
+
+    if (item.choices[i] === item.correct) {
+      button.classList.add("correct");
+    }
+
+    if (i === index && !isCorrect) {
+      button.classList.add("wrong");
+    }
+  });
+
+  document.getElementById("result").innerHTML = `
+    <div class="feedback">
+      <h2>${isCorrect ? "⭕ 正解！" : "❌ ざんねん！"}</h2>
+      <p>
+        <strong>正しい答え：</strong><br>
+        ${escapeHTML(item.correct)}
+      </p>
+      <p>
+        <strong>解説：</strong><br>
+        ${escapeHTML(item.explanation)}
+      </p>
+    </div>
+  `;
+
+  document.getElementById("nextButton").style.display = "block";
 }
 
-function finish(){
- const total=data[unit].questions.length;
- document.getElementById("score").textContent=points+" / "+total+"問";
- document.getElementById("message").textContent=
- points===total?"全問正解！すばらしい！":
- points>=total*0.7?"よくできました！":
- "解説を読んで、もう一度挑戦しよう！";
- show("result");
+function nextQuestion() {
+  currentIndex++;
+
+  if (currentIndex >= quiz.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
 }
 
-function restart(){
- start(unit);
+function showResult() {
+  const total = quiz.length;
+  const percent = Math.round((correctCount / total) * 100);
+  const unit = UNITS[currentUnit];
+
+  app.innerHTML = `
+    <h1>🎉 クイズ終了！</h1>
+
+    <div class="card">
+      <p class="muted" style="text-align:center">
+        ${unit.icon} ${escapeHTML(unit.title)}
+        ${isReview ? "・復習" : ""}
+      </p>
+
+      <div class="score">
+        ${correctCount} / ${total}
+      </div>
+
+      <h2 style="text-align:center">
+        正答率 ${percent}%
+      </h2>
+
+      <p style="text-align:center">
+        ${percent === 100
+          ? "全問正解！すばらしい！"
+          : percent >= 80
+          ? "よくできました！"
+          : percent >= 60
+          ? "あと少し！復習してみよう！"
+          : "解説を読んで、もう一度チャレンジ！"}
+      </p>
+
+      ${mistakes.length > 0 ? `
+        <button class="btn" onclick="reviewMistakes()">
+          まちがえた${mistakes.length}問を復習する
+        </button>
+      ` : ""}
+
+      <button class="btn secondary" onclick="startUnit(${currentUnit})">
+        この単元をもう一度
+      </button>
+
+      <button class="btn secondary" onclick="showHome()">
+        単元選択にもどる
+      </button>
+    </div>
+  `;
 }
 
-const units=document.getElementById("units");
-data.forEach((u,i)=>{
- const card=document.createElement("div");
- card.className="card";
- const title=document.createElement("h2");
- title.textContent=u.icon+" "+u.title;
- const desc=document.createElement("p");
- desc.className="small";
- desc.textContent=u.questions.length+"問のクイズ";
- const button=document.createElement("button");
- button.className="primary";
- button.textContent="この単元に挑戦 →";
- button.onclick=()=>start(i);
- card.append(title,desc,button);
- units.appendChild(card);
-});
+function reviewMistakes() {
+  quiz = mistakes.map(item => ({
+    ...item,
+    choices: shuffle(item.choices)
+  }));
+
+  currentIndex = 0;
+  correctCount = 0;
+  mistakes = [];
+  isReview = true;
+
+  showQuestion();
+}
+
+showHome();
 </script>
 </body>
 </html>
