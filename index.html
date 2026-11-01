@@ -428,6 +428,276 @@ function reviewMistakes() {
   showQuestion();
 }
 
+// ===== 社会クイズの追加 =====
+
+const SOCIAL_UNITS = [
+  {
+    title:"自然災害の種類と被害",
+    icon:"🌪️",
+    questions:[
+      ["1891年に愛知県で大きな被害を出した地震は何ですか。","濃尾地震","東南海地震","三河地震","南海トラフ巨大地震","濃尾地震は1891年に起きた大地震です。"],
+      ["1959年に愛知県で高潮などによる大きな被害を出した災害は何ですか。","伊勢湾台風","東海豪雨","濃尾地震","東南海地震","伊勢湾台風では強い風や大雨、高潮などによって大きな被害が出ました。"],
+      ["2000年に名古屋市などで大きな浸水被害を出した災害は何ですか。","東海豪雨","伊勢湾台風","濃尾地震","東南海地震","東海豪雨は2000年9月に発生し、集中豪雨によって多くの町や建物が水につかりました。"],
+      ["1944年に起きた地震は何ですか。","東南海地震","濃尾地震","三河地震","東海豪雨","東南海地震は1944年に発生しました。"],
+      ["教科書にある南海トラフ巨大地震の想定では、最大でどのくらいの震度の地震が起きるとされていますか。","震度7","震度4","震度5弱","震度6弱","教科書では、南海トラフ巨大地震によって最大震度7の強い揺れが起こると想定されています。"],
+      ["伊勢湾台風で被害が特に大きくなった原因として、正しいものはどれですか。","高潮に加えて、港にあった木材が住宅地へ流れ込んだ","大雪で道路がふさがれた","地震で山がくずれた","火山の噴火で灰が積もった","伊勢湾台風では高潮とともに大量の木材が流れ、大きな被害につながりました。"],
+      ["東海豪雨のとき、名古屋市の道路や建物が水につかった主な原因は何ですか。","非常に激しい雨が集中して降ったから","海底で地震が起きたから","火山が噴火したから","雪が大量に積もったから","東海豪雨では集中豪雨によって浸水や家屋の被害が起きました。"],
+      ["図のように建物がこわれたり、道路に大きなひびが入ったりする災害は何ですか。","地震","高潮","大雪","干ばつ","地震の強い揺れによって、建物がこわれたり道路や土地に被害が出たりします。","quake"],
+      ["図は地震のハザードマップを簡単に表したものです。地域ごとに色分けされているのは何を示すためですか。","予想される揺れの強さの違い","住んでいる人の年齢の違い","学校の数の違い","町の名前の違い","地震のハザードマップでは、予想される震度などを地域ごとに色分けして示すことがあります。","riskmap"],
+      ["大雨で道路が深く水につかっているとき、どうするのが安全ですか。","水につかった道路に入らず、安全な場所へ移動する","水の深さを確かめるため歩いて入る","水の中を自転車で進む","側溝をのぞき込む","冠水した道路には深い場所や見えない危険があります。近づかないことが大切です。"],
+      ["家の近くで洪水や津波の被害が予想される場所を調べるには、何を使うとよいですか。","ハザードマップ","星座早見","時刻表","気温の記録表","ハザードマップには、自然災害によって危険が予想される場所などが示されています。"],
+      ["大雨による洪水が心配なとき、避難場所を選ぶ考え方として正しいのはどれですか。","洪水の危険が少ない安全な場所を選ぶ","川に近い低い場所を選ぶ","水の様子が見える橋の下を選ぶ","いつも遊ぶ公園なら必ず安全だと考える","災害の種類とその場所の危険を調べ、安全な避難先を決めることが大切です。"]
+    ]
+  },
+  {
+    title:"災害への備えと地域の取り組み",
+    icon:"🏙️",
+    questions:[
+      ["台風の大きさや予想される進路などを知らせる情報は何ですか。","台風情報","緊急地震速報","津波警報","火山情報","台風情報から、台風の大きさや進む方向などを知ることができます。"],
+      ["ある地域で、災害につながるような非常に激しい雨が短時間に降ったことを知らせる情報は何ですか。","記録的短時間大雨情報","台風情報","緊急地震速報","津波警報","記録的短時間大雨情報は、災害につながるおそれのある猛烈な雨が短時間に降ったことを知らせます。"],
+      ["住んでいる場所に警戒レベル4の『避難指示』が出ました。家が危険な場所にあるとき、どうしますか。","すぐに安全な場所へ避難する","警戒レベル5になるまで待つ","川の様子を見に行く","家の外で雨の量を測る","警戒レベル4では、危険な場所にいる人は全員避難する必要があります。"],
+      ["大雨で町にたまった水をくみ上げ、川などへ流す施設は何ですか。","雨水ポンプ所","雨水貯留施設","高潮防波堤","防潮壁","雨水ポンプ所は、雨水をくみ上げて川などに排出し、浸水を減らします。"],
+      ["図のような地下の雨水貯留施設は、大雨のときにどんな働きをしますか。","雨水を一時的にためて浸水を減らす","海の波を直接さえぎる","地震の揺れを止める","台風の進路を変える","雨水貯留施設は、排水しきれない雨水を一時的にためる施設です。","storage"],
+      ["伊勢湾台風の後に名古屋港の沖につくられた高潮防波堤には、どんな役割がありますか。","高潮の勢いを弱め、被害を減らす","地下水をくみ上げる","地震の揺れを止める","雨の雲をなくす","高潮防波堤は海からの高潮による被害を小さくするための施設です。"],
+      ["図のポンプが動くと、町にたまった雨水はどうなりますか。","くみ上げられて川などへ流される","その場で氷に変わる","空からさらに雨を降らせる","建物の屋根に集められる","雨水ポンプ所は、低い場所にたまった水をポンプでくみ上げて排出します。","pump"],
+      ["名古屋港の陸側にある防潮壁は、主に何を防ぐためのものですか。","高潮による海水の浸入","山火事の広がり","地震の揺れ","大雪の積もりすぎ","防潮壁は、高潮のとき海水が陸へ入ることを防ぐための壁です。"],
+      ["図のように災害情報が市の災害対策本部に集まるのは、何のためですか。","情報をまとめ、必要な機関と連絡して対応するため","集めた情報を誰にも知らせないため","すべての学校を閉鎖するためだけ","台風の進む向きを変えるため","災害対策本部は情報を集め、区役所や消防などの関係機関と連絡を取り合います。","information"],
+      ["危険な場所に住む、避難に時間がかかる高齢者などは、警戒レベル3の『高齢者等避難』が出たらどうしますか。","早めに安全な場所へ避難する","警戒レベル5まで待つ","川の水位を見に行く","避難所の準備が終わるまで外で待つ","警戒レベル3は、避難に時間がかかる人などが危険な場所から避難する段階です。"],
+      ["公園などに設置される防災器具庫は、何のためにありますか。","災害時に必要な道具を備えておくため","雨水をためて飲み水にするため","台風の進路を決めるため","地震が起きる日時を予測するため","防災器具庫には、災害時の救助や避難などに使う器具が備えられています。"],
+      ["台風が近づいているという予報が出ました。事前の行動として適切なのはどれですか。","気象情報と避難場所・避難経路を確認する","川へ水位を見に行く","風が強くなってからベランダの物を片づける","警報が出ても情報を見ない","危険が迫る前に情報を集め、避難の準備をしておくことが大切です。"]
+    ]
+  },
+  {
+    title:"災害時の行動と自助・共助・公助",
+    icon:"🤝",
+    questions:[
+      ["自分で非常持ち出し品を用意し、自分の命を守る取り組みを何といいますか。","自助","共助","公助","救助","自助は、自分で自分の命や安全を守る取り組みです。"],
+      ["図のように地域の人たちが協力して炊き出しをする取り組みは何といいますか。","共助","自助","公助","気象観測","共助は、近所の人や地域の人たちが助け合う取り組みです。","community"],
+      ["市役所や消防署などが災害から人々を守る取り組みを何といいますか。","公助","自助","共助","互助会","公助は、国や市などの行政機関が人々の安全を守る取り組みです。"],
+      ["災害時に伝言を録音したり聞いたりできる『災害用伝言ダイヤル』の番号はどれですか。","171","119","110","117","171は災害時に安否などの伝言を録音・再生できるサービスです。"],
+      ["地域の住民が協力して防災訓練や災害時の支援に取り組む組織は何ですか。","自主防災組織","気象庁","災害対策本部","消防署","自主防災組織は地域の人たちでつくり、互いに助け合うための活動をします。"],
+      ["教科書では、家庭で用意する食べ物や飲み物を最低どのくらい備えるとよいとされていますか。","3日分","半日分","1日分","2日分","教科書では、最低でも3日分の食べ物や飲み物を備えることを勧めています。"],
+      ["大きな災害のあと、避難所が開設されるのは主に何のためですか。","家で安全に過ごせない人が避難し、生活できるようにするため","新しい商店をつくるため","毎日運動会を開くため","台風の進路を変えるため","避難所では、被災した人たちが避難し、生活を支える取り組みが行われます。"],
+      ["地震が起きたとき、頭を守ることが大切なのはなぜですか。","落ちてくる物などによるけがを防ぐため","地震を止めるため","建物を動かすため","停電を直すため","強い揺れのときは物が落ちたり倒れたりするため、頭を守って身の安全を確保します。"],
+      ["図のように海の近くで強い地震を感じ、津波のおそれがあるとき、どうしますか。","海や川から離れ、安全な高い場所へすぐ避難する","海岸で波を観察する","家へ荷物を取りに戻る","低い場所に集まる","津波のおそれがあるときは、津波から安全な高い場所などへすぐに避難します。","tsunami"],
+      ["強い地震の揺れを感じたとき、まず取る行動として適切なのはどれですか。","頭を守り、落ち着いて身の安全を確保する","すぐエレベーターに乗る","窓の近くに立つ","急いで外へ飛び出す","揺れている間は、落下物などから頭を守り、安全な場所で身を守ります。"],
+      ["災害で家族と連絡が取りにくいとき、あらかじめ決めておくと役立つ方法はどれですか。","171などの伝言サービスや集合場所を家族で確認しておく","連絡方法を決めず、その場で考える","危険でも必ず家に戻る","知らないうわさだけを頼りに動く","連絡方法や集合場所を事前に家族で決めると、災害時に落ち着いて行動しやすくなります。"],
+      ["大きな災害で消防などがすぐに来られないとき、どのような考え方が大切ですか。","まず自分の安全を守り、できる範囲で周囲と助け合う","危険な場所へ一人で入り、無理に救助する","行政が来るまで何も準備しない","情報を確かめずに危険な場所へ向かう","公助がすぐに届かない場合もあるため、自助と、安全を確保したうえでの共助が大切です。"]
+    ]
+  }
+];
+
+UNITS.push(...SOCIAL_UNITS);
+
+// ===== 画像付き問題のオリジナル図解 =====
+
+function socialDiagram(key) {
+  const pictures = {
+    quake: `
+      <rect x="60" y="52" width="145" height="108" fill="#ffdfb5" stroke="#87684b" stroke-width="3"/>
+      <path d="M50 52 L130 16 L210 52" fill="none" stroke="#87684b" stroke-width="7"/>
+      <rect x="90" y="75" width="30" height="40" fill="#a8ccdc"/>
+      <path d="M164 55 L145 89 L163 102 L138 157" fill="none" stroke="#c34842" stroke-width="5"/>
+      <path d="M240 151 H545" stroke="#777e88" stroke-width="22"/>
+      <path d="M369 140 L350 151 L375 162 L357 176" fill="none" stroke="#c34842" stroke-width="5"/>
+      <text x="118" y="194" text-anchor="middle">建物</text>
+      <text x="390" y="194" text-anchor="middle">道路</text>`,
+    riskmap: `
+      <path d="M74 43 L167 25 L255 55 L282 126 L218 175 L106 153 L53 98 Z" fill="#e6f3f0" stroke="#4f7d74" stroke-width="3"/>
+      <path d="M74 43 L167 25 L171 88 L114 112 L53 98 Z" fill="#79a987"/>
+      <path d="M167 25 L255 55 L282 126 L171 88 Z" fill="#e5c85c"/>
+      <path d="M114 112 L171 88 L282 126 L218 175 L106 153 Z" fill="#d5805b"/>
+      <path d="M171 25 L171 88 L114 112 M171 88 L218 175" fill="none" stroke="#fff" stroke-width="3"/>
+      <text x="405" y="62" text-anchor="middle">地域によって</text>
+      <text x="405" y="90" text-anchor="middle">色がちがう</text>
+      <rect x="332" y="114" width="45" height="18" fill="#79a987"/>
+      <rect x="385" y="114" width="45" height="18" fill="#e5c85c"/>
+      <rect x="438" y="114" width="45" height="18" fill="#d5805b"/>
+      <text x="408" y="162" text-anchor="middle" font-size="16">地震のハザードマップ</text>`,
+    storage: `
+      <rect x="0" y="105" width="600" height="100" fill="#e6dac4"/>
+      <path d="M0 105 H600" stroke="#668d60" stroke-width="5"/>
+      <path d="M102 105 V145 H180" fill="none" stroke="#567a89" stroke-width="12"/>
+      <rect x="180" y="128" width="265" height="63" rx="9" fill="#f6f8fa" stroke="#6c7d88" stroke-width="5"/>
+      <rect x="188" y="155" width="249" height="28" fill="#75b9dc"/>
+      <path d="M113 23 Q91 2 68 24 Q42 20 44 46 Q30 66 67 69 H147 Q180 62 162 40 Q160 20 136 23 Z" fill="#dce6ef"/>
+      <path d="M82 76 l-9 17 M116 76 l-9 17 M148 76 l-9 17" stroke="#438cbc" stroke-width="4"/>
+      <path d="M105 85 V133 H157" fill="none" stroke="#438cbc" stroke-width="4" stroke-dasharray="6 5"/>
+      <text x="480" y="66">地上</text>
+      <text x="480" y="153">地下</text>`,
+    pump: `
+      <rect x="0" y="148" width="600" height="55" fill="#e8ddc7"/>
+      <path d="M0 149 H600" stroke="#798e72" stroke-width="4"/>
+      <path d="M45 150 V186 H255 V150" fill="#76b5d2" stroke="#567a89" stroke-width="3"/>
+      <rect x="255" y="68" width="155" height="81" fill="#f9e7c9" stroke="#7b746b" stroke-width="4"/>
+      <path d="M240 68 L333 24 L426 68" fill="none" stroke="#7b746b" stroke-width="6"/>
+      <circle cx="332" cy="106" r="23" fill="#c5d6d8" stroke="#64808b" stroke-width="5"/>
+      <path d="M244 174 H296 V125 H332 M355 106 H471 V174 H564" fill="none" stroke="#4b9dc4" stroke-width="12"/>
+      <path d="M492 159 L512 174 L492 189" fill="none" stroke="#2477a2" stroke-width="6"/>
+      <path d="M522 151 V190 H588 V151" fill="#76b5d2"/>
+      <text x="109" y="130">町の雨水</text>
+      <text x="520" y="130">川</text>`,
+    information: `
+      <rect x="16" y="55" width="142" height="86" rx="12" fill="#d7eaf8" stroke="#7ea7c2" stroke-width="3"/>
+      <rect x="225" y="50" width="159" height="96" rx="12" fill="#fbe6c2" stroke="#caa360" stroke-width="3"/>
+      <rect x="445" y="55" width="139" height="86" rx="12" fill="#dbf1df" stroke="#7fb08b" stroke-width="3"/>
+      <text x="87" y="90" text-anchor="middle">雨量計・カメラ</text>
+      <text x="87" y="117" text-anchor="middle">現場の情報</text>
+      <text x="305" y="90" text-anchor="middle">市の災害対策</text>
+      <text x="305" y="117" text-anchor="middle">本部</text>
+      <text x="514" y="90" text-anchor="middle">区役所・消防</text>
+      <text x="514" y="117" text-anchor="middle">などの機関</text>
+      <path d="M165 98 H216 M202 88 L216 98 L202 108 M390 98 H436 M422 88 L436 98 L422 108" fill="none" stroke="#518e82" stroke-width="5"/>
+      <text x="300" y="185" text-anchor="middle" font-size="16">情報を集め、連絡を取り合う</text>`,
+    community: `
+      <rect x="170" y="126" width="270" height="18" rx="5" fill="#a87b52"/>
+      <path d="M199 144 V183 M412 144 V183" stroke="#a87b52" stroke-width="10"/>
+      <circle cx="122" cy="70" r="28" fill="#f0ba8f"/>
+      <path d="M92 105 Q122 87 152 105 L163 173 H80 Z" fill="#7fabb2"/>
+      <circle cx="491" cy="70" r="28" fill="#f0ba8f"/>
+      <path d="M460 105 Q491 87 521 105 L535 173 H448 Z" fill="#e2ae62"/>
+      <path d="M144 115 L205 128 M467 115 L414 128" stroke="#f0ba8f" stroke-width="14" stroke-linecap="round"/>
+      <ellipse cx="302" cy="124" rx="64" ry="18" fill="#f8fafb" stroke="#7f9bb0" stroke-width="4"/>
+      <path d="M260 110 Q302 86 345 110" fill="none" stroke="#9cc88d" stroke-width="8"/>
+      <text x="303" y="39" text-anchor="middle">地域のみんなで炊き出し</text>`,
+    tsunami: `
+      <rect x="0" y="156" width="600" height="49" fill="#85bed5"/>
+      <path d="M0 154 Q35 137 70 154 T140 154 T210 154" fill="none" stroke="#3c86ab" stroke-width="5"/>
+      <path d="M190 154 L287 108 L383 69 L600 69 V205 H190 Z" fill="#b4cc95"/>
+      <path d="M190 154 L287 108 L383 69" fill="none" stroke="#6e986b" stroke-width="5"/>
+      <rect x="438" y="26" width="85" height="62" fill="#f7dfb4" stroke="#9a8768" stroke-width="3"/>
+      <path d="M428 26 L480 2 L534 26" fill="none" stroke="#9a8768" stroke-width="6"/>
+      <path d="M245 140 Q326 126 404 78" fill="none" stroke="#c75b42" stroke-width="8" stroke-dasharray="14 10"/>
+      <path d="M386 77 L410 74 L405 99" fill="none" stroke="#c75b42" stroke-width="7"/>
+      <text x="76" y="125">海</text>
+      <text x="475" y="118" text-anchor="middle">高い場所</text>`
+  };
+
+  if (!pictures[key]) return "";
+
+  return `
+    <div class="social-image">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           viewBox="0 0 600 205"
+           role="img"
+           aria-label="問題の参考図"
+           style="width:100%;display:block;background:#f7faf8;border-radius:12px">
+        <g font-family="-apple-system,sans-serif"
+           font-size="20" fill="#29473f">
+          ${pictures[key]}
+        </g>
+      </svg>
+      <div class="social-caption">
+        図を見て考えよう（オリジナル図解）
+      </div>
+    </div>`;
+}
+
+// ===== 教科選択画面を追加 =====
+
+let selectedSubject = "";
+const oldShowQuestion = showQuestion;
+
+function chooseSubject(subject) {
+  selectedSubject = subject;
+  showHome();
+}
+
+function showSubjects() {
+  selectedSubject = "";
+  showHome();
+}
+
+showHome = function() {
+  currentUnit = null;
+
+  if (!selectedSubject) {
+    app.innerHTML = `
+      <h1>📚 小学4年生 学習クイズ</h1>
+      <p class="muted">勉強したい教科を選ぼう！</p>
+
+      <div class="card">
+        <h2>🔬 理科</h2>
+        <p class="muted">3単元・75問</p>
+        <button class="btn"
+          onclick="chooseSubject('science')">
+          理科にチャレンジ
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>🌏 社会</h2>
+        <p class="muted">3単元・36問</p>
+        <button class="btn"
+          onclick="chooseSubject('social')">
+          社会にチャレンジ
+        </button>
+      </div>`;
+    return;
+  }
+
+  const isScience = selectedSubject === "science";
+  const units = isScience
+    ? UNITS.slice(0, 3)
+    : UNITS.slice(3);
+  const offset = isScience ? 0 : 3;
+
+  app.innerHTML = `
+    <button class="link" onclick="showSubjects()">
+      ← 教科選択にもどる
+    </button>
+
+    <h1>${isScience ? "🔬 理科" : "🌏 社会"}クイズ</h1>
+    <p class="muted">勉強したい単元を選ぼう！</p>
+
+    ${units.map((unit, i) => `
+      <div class="card">
+        <h2>${unit.icon} ${escapeHTML(unit.title)}</h2>
+        <p class="muted">全${unit.questions.length}問</p>
+        <button class="btn"
+          onclick="startUnit(${i + offset})">
+          この単元にチャレンジ
+        </button>
+      </div>
+    `).join("")}`;
+};
+
+// ===== 画像付き問題の表示処理 =====
+
+showQuestion = function() {
+  oldShowQuestion();
+
+  const item = quiz[currentIndex];
+  const source = UNITS[currentUnit].questions[item.number - 1];
+  const imageKey = source[6];
+
+  if (imageKey) {
+    const questionText = app.querySelector(".card > p");
+    if (questionText) {
+      questionText.insertAdjacentHTML(
+        "afterend",
+        socialDiagram(imageKey)
+      );
+    }
+  }
+};
+
+document.head.insertAdjacentHTML("beforeend", `
+  <style>
+    .social-image {
+      margin:14px 0 20px;
+    }
+    .social-caption {
+      font-size:12px;
+      color:#698078;
+      text-align:center;
+      margin-top:6px;
+    }
+  </style>
+`);
+
+// ===== 社会クイズ追加ここまで =====
+
 showHome();
 </script>
 </body>
